@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pivot – Operations That Actually Work</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: #0a0a0f;
+      line-height: 1.6;
+      background: #ffffff;
+    }
+
+    /* Sticky Navigation - Inspired by Notion/Linear */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo img {
+      height: 85px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #0a0a0f;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #0076ef;
+    }
+
+    .nav-cta {
+      background: #0a0a0f;
+      color: white !important;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: #0076ef;
+      transform: translateY(-1px);
+    }
+
+    body {
+      padding-top: 80px;
+    }
+
+    /* Hero - Inspired by Stripe/Vercel */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f8f9fb 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 80%;
+      height: 150%;
+      background: radial-gradient(circle, rgba(0, 118, 239, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 3rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-content {
+      max-width: 680px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #0076ef;
+      border: 1px solid #0076ef;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .hero-badge:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 118, 239, 0.3);
+    }
+
+    .hero h1 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #0a0a0f 0%, #333 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.35rem;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-hero-primary {
+      background: #0a0a0f;
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-hero-primary:hover {
+      background: #0076ef;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 118, 239, 0.25);
+    }
+
+    .btn-hero-secondary {
+      color: #0a0a0f;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: gap 0.2s;
+    }
+
+    .btn-hero-secondary:hover {
+      gap: 0.75rem;
+    }
+
+    /* Social Proof */
+    .social-proof {
+      padding: 4rem 0;
+      background: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .social-proof-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 3rem;
+      text-align: center;
+    }
+
+    .social-proof p {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .stats-inline {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+    }
+
+    .stat-inline {
+      text-align: center;
+    }
+
+    .stat-inline h3 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #0a0a0f;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-inline p {
+      font-size: 0.95rem;
+      color: #666;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+
+    /* Problem Section - Inspired by Monday.com */
+    .problem-section {
+      padding: 8rem 0;
+      background: #0a0a0f;
+      color: white;
+    }
+
+    .problem-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 3rem;
+      text-align: center;
+    }
+
+    .problem-section h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .problem-section > p {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 700px;
+      margin: 0 auto 4rem;
+      line-height: 1.7;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .problem-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: left;
+      transition: all 0.3s;
+    }
+
+    .problem-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .problem-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .problem-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .problem-card p {
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    /* Features - Inspired by Asana */
+    .features-section {
+      padding: 8rem 0;
+      background: white;
+    }
+
+    .features-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+
+    .section-header {
+      max-width: 700px;
+      margin: 0 auto 5rem;
+      text-align: center;
+    }
+
+    .section-header h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .section-header p {
+      font-size: 1.25rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      margin-bottom: 8rem;
+    }
+
+    .feature-row:nth-child(even) .feature-content {
+      order: 2;
+    }
+
+    .feature-row:nth-child(even) .feature-visual {
+      order: 1;
+    }
+
+    .feature-content h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    .feature-content p {
+      font-size: 1.15rem;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 2rem;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 1.05rem;
+      color: #333;
+    }
+
+    .feature-list li i {
+      color: #0076ef;
+      margin-top: 0.25rem;
+    }
+
+    .feature-visual {
+      background: linear-gradient(135deg, #f8f9fb 0%, #e8edf5 100%);
+      border-radius: 16px;
+      padding: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .feature-visual-placeholder {
+      font-size: 4rem;
+      color: #0076ef;
+      opacity: 0.3;
+    }
+
+    /* Pricing - Inspired by Notion */
+    .pricing-section {
+      padding: 8rem 0;
+      background: #f8f9fb;
+    }
+
+    .pricing-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .pricing-card {
+      background: white;
+      border-radius: 16px;
+      padding: 3rem;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .pricing-card:hover {
+      border-color: #0076ef;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 118, 239, 0.15);
+    }
+
+    .pricing-card.featured {
+      border-color: #0076ef;
+      box-shadow: 0 8px 32px rgba(0, 118, 239, 0.2);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0076ef;
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pricing-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-card .price {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: baseline;
+    }
+
+    .pricing-card .price span {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #666;
+      margin-left: 0.5rem;
+    }
+
+    .pricing-card .price-note {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin: 2rem 0;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.875rem;
+      color: #333;
+    }
+
+    .pricing-features li i {
+      color: #0076ef;
+      font-size: 1.1rem;
+    }
+
+    .btn-pricing {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-pricing-primary {
+      background: #0a0a0f;
+      color: white;
+    }
+
+    .btn-pricing-primary:hover {
+      background: #0076ef;
+      transform: translateY(-2px);
+    }
+
+    .btn-pricing-secondary {
+      background: white;
+      color: #0a0a0f;
+      border: 2px solid #e0e0e0;
+    }
+
+    .btn-pricing-secondary:hover {
+      border-color: #0076ef;
+      color: #0076ef;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 8rem 0;
+      background: linear-gradient(135deg, #0076ef 0%, #0056b3 100%);
+      color: white;
+      text-align: center;
+    }
+
+    .cta-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+
+    .cta-section h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .cta-section p {
+      font-size: 1.25rem;
+      margin-bottom: 2.5rem;
+      opacity: 0.95;
+      line-height: 1.7;
+    }
+
+    .btn-cta {
+      background: white;
+      color: #0076ef;
+      padding: 1.25rem 3rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: inline-block;
+      transition: all 0.2s;
+    }
+
+    .btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Footer */
+    .footer {
+      background: #0a0a0f;
+      color: white;
+      padding: 5rem 0 2rem;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 4rem;
+    }
+
+    .footer-brand h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-section h4 {
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.875rem;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #0076ef;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero h1 {
+        font-size: 3.5rem;
+      }
+
+      .problem-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-row {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+
+      .feature-row:nth-child(even) .feature-content {
+        order: 1;
+      }
+
+      .feature-row:nth-child(even) .feature-visual {
+        order: 2;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        padding: 1rem 1.5rem;
+      }
+
+      .nav-links {
+        gap: 1.5rem;
+        font-size: 0.85rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn-hero-primary,
+      .btn-hero-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .stats-inline {
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .problem-section h2,
+      .section-header h2,
+      .cta-section h2 {
+        font-size: 2rem;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <a href="#" onclick="showPage('home'); return false;">
+        <img src="assets/PivotNoBackground.png" alt="Pivot">
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="#" onclick="showPage('home'); scrollToSection('features'); return false;">Features</a>
+      <a href="#" onclick="showPage('home'); scrollToSection('pricing'); return false;">Pricing</a>
+      <a href="#" onclick="showPage('about'); return false;">About</a>
+      <a href="#" onclick="showPage('contact'); return false;">Contact</a>
+      <a href="http://app.pivotgroup.solutions" class="nav-cta">Demo (Beta)</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="home" class="page active">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <a href="#" onclick="showPage('contact'); return false;" class="hero-badge">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Now accepting early access applications</span>
+        </a>
+        <h1>Operations that actually work.</h1>
+        <p>
+          Stop guessing. Start executing. Pivot turns your sales data into smart task 
+          assignments that keep your team productive and your operations running like clockwork.
+        </p>
+        <div class="hero-buttons">
+          <a href="http://app.pivotgroup.solutions" class="btn-hero-primary">
+            View Demo (Beta) <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <a href="#" onclick="scrollToSection('features'); return false;" class="btn-hero-secondary">
+            See how it works <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section class="social-proof">
+    <div class="social-proof-container">
+      <p>Trusted by fast-paced businesses</p>
+      <div class="stats-inline">
+        <div class="stat-inline">
+          <h3>2%+</h3>
+          <p>Projected net margin increase</p>
+        </div>
+        <div class="stat-inline">
+          <h3>30hrs</h3>
+          <p>Saved per month</p>
+        </div>
+        <div class="stat-inline">
+          <h3>24/7</h3>
+          <p>Real-time sync</p>
+        </div>
+        <div class="stat-inline">
+          <h3>50+</h3>
+          <p>Beta businesses</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="problem-section">
+    <div class="problem-container">
+      <h2>Your operations shouldn't be a guessing game</h2>
+      <p>
+        You've got a great product. Your prices are competitive. So why aren't operations running smoothly?
+      </p>
+      
+      <div class="problem-grid">
+        <div class="problem-card">
+          <h3 style="text-align: center;">Scattered task tracking</h3>
+          <p>Tasks lost in texts, emails, and sticky notes. No single source of truth for what needs to get done.</p>
+        </div>
+        
+        <div class="problem-card">
+          <h3 style="text-align: center;">No visibility</h3>
+          <p>You can't see what's actually getting done, who's falling behind, or where bottlenecks exist.</p>
+        </div>
+        
+        <div class="problem-card">
+          <h3 style="text-align: center;">Reactive, not proactive</h3>
+          <p>Your team responds to problems instead of preventing them. Busy periods mean important tasks get missed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="features-container">
+      <div class="section-header">
+        <h2>Everything you need to run tight operations</h2>
+        <p>Built by operations leaders who've lived through the chaos. Designed for the realities of fast-paced businesses.</p>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Real-time analytics that drive action</h3>
+          <p>
+            Your POS data flows directly into Pivot. When sales spike, maintenance tasks automatically adjust. 
+            When foot traffic slows, your team gets proactive tasks to prepare for the next rush.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check-circle"></i> Automatic task generation based on sales patterns</li>
+            <li><i class="fa-solid fa-check-circle"></i> Smart scheduling that adapts to your business flow</li>
+            <li><i class="fa-solid fa-check-circle"></i> Historical data shows what improves margins and saves money</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-placeholder">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Accountability by design</h3>
+          <p>
+            Display tasks however your team works best. Use daily checklists, shared shift boards on a company device, or individual mobile sign-offs.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check-circle"></i> Customizable verification options for improved workflow</li>
+            <li><i class="fa-solid fa-check-circle"></i> Instant sign off features for fast paced work environments</li>
+            <li><i class="fa-solid fa-check-circle"></i> Complete audit trail of all operations</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-placeholder">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Built to work with your existing systems</h3>
+          <p>
+            Pivot connects with the tools you already use to run your bisiness.  Integrate common POS sttems to automatically trigger and track tasks in real time.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check-circle"></i> Compatible with widely used POS platforms</li>
+            <li><i class="fa-solid fa-check-circle"></i> Secure, API-based connections with real-time data sync</li>
+            <li><i class="fa-solid fa-check-circle"></i> Simple setup with guided configuration and no technical work required</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-placeholder">
+            <i class="fa-solid fa-comments"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-content">
+          <h3>Mobile-first design</h3>
+          <p>
+            Your team isn't at a desk. Pivot works perfectly on phones, tablets, and kiosks. 
+            Clock in, check tasks, upload photos—all from any device.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check-circle"></i> Optimized for phones and tablets</li>
+            <li><i class="fa-solid fa-check-circle"></i> Works on any modern browser—no app install required</li>
+            <li><i class="fa-solid fa-check-circle"></i> Kiosk mode for shared devices</li>
+          </ul>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-visual-placeholder">
+            <i class="fa-solid fa-mobile-screen"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing">
+    <div class="pricing-container">
+      <div class="section-header">
+        <h2>Pricing that makes sense</h2>
+        <p>No per-user fees. No feature gates. Just honest, straightforward pricing.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Small Business</h3>
+          <div class="price">$49<span>/month</span></div>
+          <p class="price-note">Perfect for 1-10 employees</p>
+          <ul class="pricing-features">
+            <li><i class="fa-solid fa-check"></i> Unlimited tasks & projects</li>
+            <li><i class="fa-solid fa-check"></i> Real-time analytics dashboard</li>
+            <li><i class="fa-solid fa-check"></i> Photo verification</li>
+            <li><i class="fa-solid fa-check"></i> Built-in messaging</li>
+            <li><i class="fa-solid fa-check"></i> Mobile optimized</li>
+            <li><i class="fa-solid fa-check"></i> Email support</li>
+          </ul>
+          <button class="btn-pricing btn-pricing-secondary" onclick="showPage('contact')">Get Started</button>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most Popular</div>
+          <h3>Early Access</h3>
+          <div class="price">Free<span>*</span></div>
+          <p class="price-note">2 months free, then $20/month (first 50 users)</p>
+          <ul class="pricing-features">
+            <li><i class="fa-solid fa-check"></i> Everything in Small Business</li>
+            <li><i class="fa-solid fa-check"></i> Locked pricing for 2 years</li>
+            <li><i class="fa-solid fa-check"></i> Free operations consultations</li>
+            <li><i class="fa-solid fa-check"></i> Priority support</li>
+            <li><i class="fa-solid fa-check"></i> Unlimited users</li>
+            <li><i class="fa-solid fa-check"></i> Shape product roadmap</li>
+          </ul>
+          <button class="btn-pricing btn-pricing-primary" onclick="showPage('contact')">Apply Now</button>
+        </div>
+
+        <div class="pricing-card">
+          <h3>Standard Business</h3>
+          <div class="price">$79<span>/month</span></div>
+          <p class="price-note">Perfect for 10+ employees</p>
+          <ul class="pricing-features">
+            <li><i class="fa-solid fa-check"></i> Everything in Small Business</li>
+            <li><i class="fa-solid fa-check"></i> Advanced analytics & insights</li>
+            <li><i class="fa-solid fa-check"></i> Priority email support</li>
+            <li><i class="fa-solid fa-check"></i> Phone support</li>
+            <li><i class="fa-solid fa-check"></i> Custom integrations</li>
+            <li><i class="fa-solid fa-check"></i> Quarterly strategy calls</li>
+          </ul>
+          <button class="btn-pricing btn-pricing-secondary" onclick="showPage('contact')">Get Started</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-container">
+      <h2>Ready to transform your operations?</h2>
+      <p>
+        Join the 50 businesses testing Pivot. Get 2 months free and lock in $20/month pricing for 2 years.
+      </p>
+      <a href="#" onclick="showPage('contact'); return false;" class="btn-cta">Apply for Early Access</a>
+    </div>
+  </section>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="about" class="page">
+  <section class="hero" style="min-height: 60vh;">
+    <div class="hero-container">
+      <div class="hero-content" style="max-width: 900px;">
+        <h1 style="font-size: 3.5rem;">We built Pivot because we've lived it.</h1>
+        <p>
+          Founded by operators who spent years watching great businesses struggle with inconsistent 
+          operations—not because they lacked talent or resources, but because they lacked the right tools.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 6rem 0; background: white;">
+    <div style="max-width: 900px; margin: 0 auto; padding: 0 3rem;">
+      <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; text-align: center;">Meet the Founders</h2>
+      <p style="font-size: 1.15rem; line-height: 1.8; color: #666; margin-bottom: 4rem; text-align: center;">
+        Built by operators who've lived through the challenges of fast-paced business environments.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4rem; margin-bottom: 5rem;">
+        <!-- Founder 1 -->
+        <div style="text-align: center;">
+          <div style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #e8edf5 0%, #d0d9e8 100%); margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <i class="fa-solid fa-user" style="font-size: 4rem; color: #0076ef; opacity: 0.3;"></i>
+          </div>
+          <h3 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Benjamin Johansen</h3>
+          <p style="color: #0076ef; font-weight: 600; margin-bottom: 1.5rem; font-size: 1.05rem;">Co-Founder & CEO</p>
+          <p style="font-size: 1rem; line-height: 1.7; color: #555;">
+            Benjamin brings years of operational experience from fast-paced retail and hospitality environments. 
+            After witnessing firsthand how great businesses struggle with inconsistent operations, he founded 
+            Pivot to bridge the gap between potential and performance.
+          </p>
+        </div>
+
+        <!-- Founder 2 -->
+        <div style="text-align: center;">
+          <div style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #e8edf5 0%, #d0d9e8 100%); margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <i class="fa-solid fa-user" style="font-size: 4rem; color: #0076ef; opacity: 0.3;"></i>
+          </div>
+          <h3 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Neal Dave</h3>
+          <p style="color: #0076ef; font-weight: 600; margin-bottom: 1.5rem; font-size: 1.05rem;">Co-Founder & COO</p>
+          <p style="font-size: 1rem; line-height: 1.7; color: #555;">
+            Neal's background in operations management and data analytics shaped Pivot's core philosophy: 
+            that real-time data should drive action, not just reports. He ensures that every feature 
+            solves real operational challenges faced by business owners daily.
+          </p>
+        </div>
+      </div>
+
+      <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; margin-top: 4rem;">Our Mission</h2>
+      <p style="font-size: 1.25rem; line-height: 1.8; color: #0076ef; font-weight: 600;">
+        To provide the tools businesses need to achieve operational success. To let business owners take 
+        control of operations and let every cog in their machine move without friction.
+      </p>
+
+      <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 2rem; margin-top: 4rem;">Our Values</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 2rem;">
+        <div style="background: #f8f9fb; padding: 2rem; border-radius: 12px;">
+          <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem; color: #0076ef;">Serve the Customer</h3>
+          <p style="color: #555; line-height: 1.7;">Every feature, every decision is made with our customers' success in mind.</p>
+        </div>
+        
+        <div style="background: #f8f9fb; padding: 2rem; border-radius: 12px;">
+          <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem; color: #0076ef;">Focus Long-Term</h3>
+          <p style="color: #555; line-height: 1.7;">We're building lasting relationships and sustainable solutions.</p>
+        </div>
+        
+        <div style="background: #f8f9fb; padding: 2rem; border-radius: 12px;">
+          <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem; color: #0076ef;">Never Be Satisfied</h3>
+          <p style="color: #555; line-height: 1.7;">There's always room to improve, optimize, and deliver more value.</p>
+        </div>
+        
+        <div style="background: #f8f9fb; padding: 2rem; border-radius: 12px;">
+          <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem; color: #0076ef;">Be Proactive</h3>
+          <p style="color: #555; line-height: 1.7;">Anticipate needs, solve problems before they arise, stay ahead.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CONTACT PAGE -->
+<div id="contact" class="page">
+  <section class="hero" style="min-height: 50vh;">
+    <div class="hero-container">
+      <div class="hero-content" style="max-width: 700px; text-align: center; margin: 0 auto;">
+        <h1 style="font-size: 3.5rem;">Let's talk.</h1>
+        <p>
+          Ready to transform your operations? Apply for early access or just say hello.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 6rem 0; background: #f8f9fb;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 3rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; align-items: start;">
+        
+        <div>
+          <h3 style="font-size: 1.5rem; margin-bottom: 2rem; font-weight: 700;">Get in touch</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <div style="display: flex; gap: 1rem;">
+              <div style="color: #0076ef; font-size: 1.5rem; margin-top: 0.25rem;">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div>
+                <h4 style="font-weight: 600; margin-bottom: 0.25rem;">Phone</h4>
+                <p style="color: #666;">770-616-9115</p>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+              <div style="color: #0076ef; font-size: 1.5rem; margin-top: 0.25rem;">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div>
+                <h4 style="font-weight: 600; margin-bottom: 0.25rem;">Email</h4>
+                <p style="color: #666;">info@pivotgroup.solutions</p>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+              <div style="color: #0076ef; font-size: 1.5rem; margin-top: 0.25rem;">
+                <i class="fa-solid fa-clock"></i>
+              </div>
+              <div>
+                <h4 style="font-weight: 600; margin-bottom: 0.25rem;">Response Time</h4>
+                <p style="color: #666;">Within 24 hours</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: white; padding: 3rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+          <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Name</label>
+              <input type="text" name="name" required style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 1rem;" placeholder="Your name">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Email</label>
+              <input type="email" name="email" required style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 1rem;" placeholder="your@email.com">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Company</label>
+              <input type="text" name="company" style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 1rem;" placeholder="Your company name">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Message</label>
+              <textarea name="message" required style="width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 1rem; min-height: 150px; resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" class="btn-pricing btn-pricing-primary" style="width: 100%;">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>Pivot</h3>
+        <p>Operations software built by operators, for operators. Turn insights into action.</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Product</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="showPage('home'); scrollToSection('features'); return false;">Features</a></li>
+          <li><a href="#" onclick="showPage('home'); scrollToSection('pricing'); return false;">Pricing</a></li>
+          <li><a href="http://app.pivotgroup.solutions">Demo (Beta)</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="showPage('about'); return false;">About</a></li>
+          <li><a href="#" onclick="showPage('contact'); return false;">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Pivot. All rights reserved.</p>
+      <p>Built in Fort Collins, CO</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+</script>
+
+</body>
+</html>
